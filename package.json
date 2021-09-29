@@ -1,0 +1,20 @@
+{
+  "name": "emission-tracker-api",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BassT/emission-tracker-api.git"
+  },
+  "author": "Sebastian Richter",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BassT/emission-tracker-api/issues"
+  },
+  "homepage": "https://github.com/BassT/emission-tracker-api#readme",
+  "engines": {
+    "node": "14.x"
+  },
+  "devDependencies": {
+    "@vercel/node": "^1.12.1"
+  }
+}
