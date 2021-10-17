@@ -5,6 +5,12 @@ export class TransportActivity {
   distance: number;
   specificEmissions: number;
   totalEmissions: number;
+  /**
+   * ID of user who created this transport activity.
+   */
+  createdBy: string;
+  createdAt: Date;
+  updatedAt?: Date;
 
   constructor({
     id,
@@ -13,6 +19,9 @@ export class TransportActivity {
     distance,
     specificEmissions,
     totalEmissions,
+    createdBy,
+    createdAt,
+    updatedAt,
   }: {
     id: string;
     title: string;
@@ -20,6 +29,9 @@ export class TransportActivity {
     distance: number;
     specificEmissions: number;
     totalEmissions: number;
+    createdBy: string;
+    createdAt?: Date;
+    updatedAt?: Date;
   }) {
     this.id = id;
     this.title = title;
@@ -27,5 +39,8 @@ export class TransportActivity {
     this.distance = distance;
     this.specificEmissions = specificEmissions;
     this.totalEmissions = totalEmissions;
+    this.createdBy = createdBy;
+    this.createdAt = createdAt || new Date();
+    this.updatedAt = updatedAt;
   }
 }

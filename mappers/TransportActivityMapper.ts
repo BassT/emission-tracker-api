@@ -2,7 +2,12 @@ import { TransportActivity } from "../entities/TransportActivity";
 import { Logger } from "../services/Logger";
 
 export interface TransportActivityMapper {
-  save({ transportActivity }: { transportActivity: TransportActivity }): Promise<TransportActivity>;
+  get(params: { id: string }): Promise<TransportActivity | undefined>;
+  list(params: {
+    filter: { createdBy?: string };
+    select: { title?: boolean };
+  }): Promise<{ id: string; title?: string }[]>;
+  save(params: { transportActivity: TransportActivity }): Promise<TransportActivity>;
 }
 
 export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
@@ -11,6 +16,31 @@ export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
 
   constructor({ logger }: { logger: Logger }) {
     this.logger = logger;
+  }
+
+  async get({ id }: { id: string }): Promise<TransportActivity | undefined> {
+    return this.transportActivities.find((item) => item.id === id);
+  }
+
+  async list({
+    filter,
+    select,
+  }: {
+    filter: { createdBy?: string };
+    select: { title?: boolean };
+  }): Promise<{ id: string; title?: string }[]> {
+    let activities = this.transportActivities;
+    if (filter.createdBy) {
+      activities = activities.filter((item) => item.createdBy === filter.createdBy);
+    }
+    const results = activities.map<{ id: string; title?: string }>((item) => {
+      let result: { id: string; title?: string } = { id: item.id };
+      if (select.title) {
+        result = { ...result, title: item.title };
+      }
+      return result;
+    });
+    return results;
   }
 
   async save({ transportActivity }: { transportActivity: TransportActivity }): Promise<TransportActivity> {
