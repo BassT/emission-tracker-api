@@ -81,6 +81,11 @@ interface CreateBody {
   date: string;
   distance: number;
   specificEmissions: number;
+  fuelType: FuelType;
+  specificFuelConsumption: number;
+  totalFuelConsumption: number;
+  calcMode: CalcMode;
+  persons: number;
   totalEmissions: number;
 }
 
@@ -91,9 +96,15 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
     date: { type: "string", format: "date-time" },
     distance: { type: "number" },
     specificEmissions: { type: "number" },
+    fuelType: { type: "string", enum: [FuelType.Diesel, FuelType.Gasoline] },
+    specificFuelConsumption: { type: "number" },
+    totalFuelConsumption: { type: "number" },
+    calcMode: { type: "string", enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel] },
+    persons: { type: "number" },
     totalEmissions: { type: "number" },
   },
   required: ["title", "date", "distance", "specificEmissions", "totalEmissions"],
+  additionalProperties: false,
 };
 
 interface DetailsBody {

@@ -27,10 +27,13 @@ app.get("/", (req, res) => {
   res.send(`Hello ${name}!`);
 });
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc))
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.post("/api/transport-activity", transportActivityController.generateCreateHandler());
 app.get("/api/transport-activity", transportActivityController.generateListHandler());
 app.get("/api/transport-activity/:id", transportActivityController.generateDetailsHandler());
 
-app.listen(port, () => console.log(`App listening at port ${port}`));
+app.listen(port, () => {
+  console.log(`App listening at port ${port}`);
+  console.log("Navigate to /docs to interact with API");
+});

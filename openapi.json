@@ -61,9 +61,15 @@
                   "date": { "type": "string", "format": "date-time" },
                   "distance": { "type": "number" },
                   "specificEmissions": { "type": "number" },
+                  "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline"] },
+                  "specificFuelConsumption": { "type": "number" },
+                  "totalFuelConsumption": { "type": "number" },
+                  "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+                  "persons": { "type": "number" },
                   "totalEmissions": { "type": "number" }
                 },
-                "required": ["title", "date", "distance", "specificEmissions", "totalEmissions"]
+                "required": ["title", "date", "distance", "specificEmissions", "totalEmissions"],
+                "additionalProperties": false
               }
             }
           }
@@ -101,37 +107,20 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "date": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "distance": {
-                      "type": "number"
-                    },
-                    "specificEmissions": {
-                      "type": "number"
-                    },
-                    "totalEmissions": {
-                      "type": "number"
-                    },
-                    "createdBy": {
-                      "type": "string"
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "updatedAt": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    }
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "date": { "type": "string", "format": "date-time" },
+                    "distance": { "type": "number" },
+                    "specificEmissions": { "type": "number" },
+                    "totalEmissions": { "type": "number" },
+                    "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline"] },
+                    "specificFuelConsumption": { "type": "number" },
+                    "totalFuelConsumption": { "type": "number" },
+                    "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+                    "persons": { "type": "number" },
+                    "createdBy": { "type": "string" },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
                   }
                 }
               }
