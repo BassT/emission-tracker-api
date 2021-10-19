@@ -5,6 +5,8 @@ import { TransportActivityMapper } from "../mappers/TransportActivityMapper";
 import { Authenticator } from "../services/Authenticator";
 import { JSONValidator } from "../services/JSONValidator";
 import { v4 as generateUUID } from "uuid";
+import { FuelType } from "../enums/FuelType";
+import { CalcMode } from "../enums/CalcMode";
 
 export class TransportActivityController {
   authenticator: Authenticator;
@@ -64,9 +66,24 @@ export class TransportActivityController {
       const { userId, error } = await this.authenticator.authenticateRequest(req);
       if (error || !userId) return res.status(401).send(error);
       if (this.jsonValidator.validate<ListBody>(listBodySchema, req.query)) {
-        const result = await this.transportActivityMapper.list({
-          filter: { createdBy: userId },
-          select: { title: req.query.title === "true" ? true : false },
+        const transportActivities = await this.transportActivityMapper.list({
+          filter: {
+            createdBy: userId,
+            dateAfter: req.query.dateAfter && typeof req.query.dateAfter === "string" ? req.query.dateAfter : undefined,
+          },
+        });
+        const result = transportActivities.map((ta) => {
+          let item: { id: string; title?: string; totalEmissions?: number; date?: Date } = { id: ta.id };
+          if (req.query.title === "true") {
+            item.title = ta.title;
+          }
+          if (req.query.totalEmissions === "true") {
+            item.totalEmissions = ta.totalEmissions;
+          }
+          if (req.query.date === "true") {
+            item.date = ta.date;
+          }
+          return item;
         });
         return res.status(200).json(result);
       } else {
@@ -121,11 +138,17 @@ const detailsBodySchema: JSONSchemaType<DetailsBody> = {
 
 interface ListBody {
   title?: "true";
+  totalEmissions?: "true";
+  date?: "true";
+  dateAfter?: string;
 }
 
 const listBodySchema: JSONSchemaType<ListBody> = {
   type: "object",
   properties: {
     title: { type: "string", nullable: true, enum: ["true"] },
+    totalEmissions: { type: "string", nullable: true, enum: ["true"] },
+    date: { type: "string", nullable: true, enum: ["true"] },
+    dateAfter: { type: "string", nullable: true, format: "date-time" },
   },
 };

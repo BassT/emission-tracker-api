@@ -7,6 +7,9 @@
   "servers": [
     {
       "url": "http://localhost:3000/api"
+    },
+    {
+      "url": "https://emission-tracker-api.azurewebsites.net/api"
     }
   ],
   "security": [{ "NaiveAuth": [] }],
@@ -21,6 +24,30 @@
             "schema": {
               "type": "string",
               "enum": ["true"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "totalEmissions",
+            "schema": {
+              "type": "string",
+              "enum": ["true"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "enum": ["true"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "dateAfter",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
             }
           }
         ],
@@ -40,6 +67,15 @@
                       "title": {
                         "type": "string",
                         "nullable": true
+                      },
+                      "totalEmissions": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "date": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date-time"
                       }
                     }
                   }
