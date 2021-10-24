@@ -1,3 +1,4 @@
+import arg from "arg";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { TransportActivityController } from "./controllers/TransportActivityController";
@@ -6,8 +7,16 @@ import { NaiveAuthenticator } from "./services/Authenticator";
 import { JSONValidator } from "./services/JSONValidator";
 import swaggerDoc from "./openapi.json";
 
+const args = arg({
+  "--secretsPath": String,
+});
+
 if (!process.env.MONGO_URL) {
-  const secrets = require("./secrets.json");
+  const secretsPath = args["--secretsPath"];
+  if (!secretsPath) {
+    throw new Error("Missing command line argument --secretsPath");
+  }
+  const secrets = require(secretsPath);
   process.env.MONGO_URL = secrets.MONGO_URL;
 }
 
