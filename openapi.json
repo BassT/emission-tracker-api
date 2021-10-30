@@ -163,6 +163,88 @@
             }
           }
         }
+      },
+      "delete": {
+        "operationId": "deleteTransportActivity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully."
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateTransportActivity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "date": { "type": "string", "format": "date-time" },
+                  "distance": { "type": "number" },
+                  "specificEmissions": { "type": "number" },
+                  "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline"] },
+                  "specificFuelConsumption": { "type": "number" },
+                  "totalFuelConsumption": { "type": "number" },
+                  "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+                  "persons": { "type": "number" },
+                  "totalEmissions": { "type": "number" }
+                },
+                "required": ["title", "date"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "date": { "type": "string", "format": "date-time" },
+                    "distance": { "type": "number" },
+                    "specificEmissions": { "type": "number" },
+                    "totalEmissions": { "type": "number" },
+                    "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline"] },
+                    "specificFuelConsumption": { "type": "number" },
+                    "totalFuelConsumption": { "type": "number" },
+                    "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+                    "persons": { "type": "number" },
+                    "createdBy": { "type": "string" },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },

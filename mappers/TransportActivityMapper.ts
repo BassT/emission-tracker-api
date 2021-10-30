@@ -1,5 +1,7 @@
 import mongoose, { FilterQuery, model, Schema } from "mongoose";
 import { TransportActivity } from "../entities/TransportActivity";
+import { CalcMode } from "../enums/CalcMode";
+import { FuelType } from "../enums/FuelType";
 import { Logger } from "../services/Logger";
 
 interface ListParams {
@@ -13,6 +15,7 @@ export interface TransportActivityMapper {
   get(params: { id: string }): Promise<TransportActivity | undefined>;
   list(params: ListParams): Promise<TransportActivity[]>;
   save(params: { transportActivity: TransportActivity }): Promise<TransportActivity>;
+  delete(params: { id: string }): Promise<void>;
 }
 
 export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
@@ -49,6 +52,10 @@ export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
     this.logger.log(`${InMemoryTransportActitiyMapper.name}: Saved ${JSON.stringify(transportActivity, null, 2)}`);
     return transportActivity;
   }
+
+  delete(params: { id: string }): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export class CosmosDBTransportActivityMapper implements TransportActivityMapper {
@@ -67,6 +74,10 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
   }
 
   private constructor() {}
+
+  async delete(params: { id: string }): Promise<void> {
+    await TransportActivityModel.findOneAndDelete({ id: params.id });
+  }
 
   async get(params: { id: string }): Promise<TransportActivity | undefined> {
     const doc = await TransportActivityModel.findOne({ id: params.id });
@@ -87,9 +98,58 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
   }
 
   async save(params: { transportActivity: TransportActivity }): Promise<TransportActivity> {
-    const doc = new TransportActivityModel({ ...params.transportActivity });
+    let doc = await TransportActivityModel.findOne({ id: params.transportActivity.id });
+    if (!doc) {
+      doc = new TransportActivityModel({ ...params.transportActivity });
+    } else {
+      doc = this.updateDoc({ doc, ...params.transportActivity });
+    }
     await doc.save();
     return new TransportActivity(doc);
+  }
+
+  private updateDoc({
+    doc,
+    title,
+    date,
+    distance,
+    specificEmissions,
+    fuelType,
+    specificFuelConsumption,
+    totalFuelConsumption,
+    calcMode,
+    persons,
+    totalEmissions,
+    updatedAt,
+  }: {
+    doc: mongoose.Document<any, any, TransportActivity> &
+      TransportActivity & {
+        _id: mongoose.Types.ObjectId;
+      };
+    title: string;
+    date: Date;
+    distance: number;
+    specificEmissions: number;
+    fuelType: FuelType;
+    specificFuelConsumption: number;
+    totalFuelConsumption: number;
+    calcMode: CalcMode;
+    persons: number;
+    totalEmissions: number;
+    updatedAt?: Date;
+  }) {
+    doc.title = title;
+    doc.date = date;
+    doc.distance = distance;
+    doc.specificEmissions = specificEmissions;
+    doc.fuelType = fuelType;
+    doc.specificFuelConsumption = specificFuelConsumption;
+    doc.totalFuelConsumption = totalFuelConsumption;
+    doc.calcMode = calcMode;
+    doc.persons = persons;
+    doc.totalEmissions = totalEmissions;
+    doc.updatedAt = updatedAt;
+    return doc;
   }
 }
 

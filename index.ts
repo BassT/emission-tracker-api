@@ -1,4 +1,5 @@
 import arg from "arg";
+import morgan from "morgan";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { TransportActivityController } from "./controllers/TransportActivityController";
@@ -36,6 +37,7 @@ async function main() {
   const app = express();
 
   app.use(express.json());
+  app.use(morgan("dev"));
 
   app.get("/", (req, res) => {
     const { name = "World" } = req.query;
@@ -47,6 +49,8 @@ async function main() {
   app.post("/api/transport-activity", transportActivityController.generateCreateHandler());
   app.get("/api/transport-activity", transportActivityController.generateListHandler());
   app.get("/api/transport-activity/:id", transportActivityController.generateDetailsHandler());
+  app.put("/api/transport-activity/:id", transportActivityController.generateUpdateHandler());
+  app.delete("/api/transport-activity/:id", transportActivityController.generateDeleteHandler());
 
   app.listen(port, () => {
     console.log(`App listening at port ${port}`);
