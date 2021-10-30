@@ -113,9 +113,34 @@
         "responses": {
           "201": {
             "description": "Created transport activity",
+            "headers": {
+              "location": {
+                "schema": { "type": "string" },
+                "description": "The URL to get transport activity details."
+              }
+            },
             "content": {
-              "text/plain": {
-                "schema": { "type": "string" }
+              "application/json": {
+                "schema": { "type": "object", "properties": { "message": { "type": "string" } } }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "properties": { "error": { "type": "string" } } }
+              }
+            }
+          },
+          "403": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "errors": { "type": "array", "items": { "type": "object" } } }
+                }
               }
             }
           }

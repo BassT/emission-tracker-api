@@ -18,12 +18,13 @@ export interface TransportActivityMapper {
   delete(params: { id: string }): Promise<void>;
 }
 
-export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
+export class InMemoryTransportActivityMapper implements TransportActivityMapper {
   transportActivities: TransportActivity[] = [];
   logger: Logger;
 
-  constructor({ logger }: { logger: Logger }) {
+  constructor({ logger, transportActivites = [] }: { logger: Logger; transportActivites?: TransportActivity[] }) {
     this.logger = logger;
+    this.transportActivities = transportActivites;
   }
 
   async get({ id }: { id: string }): Promise<TransportActivity | undefined> {
@@ -49,12 +50,12 @@ export class InMemoryTransportActitiyMapper implements TransportActivityMapper {
         ...this.transportActivities.slice(idx + 1),
       ];
     }
-    this.logger.log(`${InMemoryTransportActitiyMapper.name}: Saved ${JSON.stringify(transportActivity, null, 2)}`);
+    this.logger.log(`${InMemoryTransportActivityMapper.name}: Saved ${JSON.stringify(transportActivity, null, 2)}`);
     return transportActivity;
   }
 
-  delete(params: { id: string }): Promise<void> {
-    throw new Error("Method not implemented.");
+  async delete(params: { id: string }): Promise<void> {
+    this.transportActivities = this.transportActivities.filter((item) => item.id !== params.id);
   }
 }
 

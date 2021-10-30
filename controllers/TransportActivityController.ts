@@ -27,24 +27,21 @@ export class TransportActivityController {
     this.transportActivityMapper = transportActivityMapper;
   }
 
-  generateCreateHandler(): RequestHandler {
-    return async (req, res) => {
-      const { userId, error } = await this.authenticator.authenticateRequest(req);
-      if (error || !userId) return res.status(401).send(error);
-      if (this.jsonValidator.validate<CreateBody>(createBodySchema, req.body)) {
-        const transportActivity = new TransportActivity({
-          ...req.body,
-          id: generateUUID(),
-          date: new Date(req.body.date),
-          createdBy: userId,
-        });
-        await this.transportActivityMapper.save({ transportActivity });
-        res.setHeader("location", `http://${req.headers.host}/api/transport-activity/${transportActivity.id}`);
-        return res.status(201).send("Created.");
-      } else {
-        return res.status(400).json(this.jsonValidator.getErrors(createBodySchema, req.body));
-      }
-    };
+  async create({ headers, body }: { headers: { xNaiveAuth?: string | string[] }; body: any }): Promise<CreateResponse> {
+    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
+    if (error || !userId) return { status: 401, error };
+    if (this.jsonValidator.validate<CreateBody>(createBodySchema, body)) {
+      const transportActivity = new TransportActivity({
+        ...body,
+        id: generateUUID(),
+        date: new Date(body.date),
+        createdBy: userId,
+      });
+      await this.transportActivityMapper.save({ transportActivity });
+      return { status: 201, transportActivity };
+    } else {
+      return { status: 403, errors: this.jsonValidator.getErrors(createBodySchema, body) };
+    }
   }
 
   generateDetailsHandler(): RequestHandler {
@@ -135,7 +132,7 @@ export class TransportActivityController {
   }
 }
 
-interface CreateBody {
+export interface CreateBody {
   title: string;
   date: string;
   distance: number;
@@ -165,6 +162,23 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
   required: ["title", "date"],
   additionalProperties: false,
 };
+
+interface CreateResponseCreated {
+  status: 201;
+  transportActivity: TransportActivity;
+}
+
+interface CreateResponseNotAuthenticated {
+  status: 401;
+  error?: string;
+}
+
+interface CreateResponseBadRequest {
+  status: 403;
+  errors?: any;
+}
+
+type CreateResponse = CreateResponseCreated | CreateResponseNotAuthenticated | CreateResponseBadRequest;
 
 interface DetailsBody {
   id: string;

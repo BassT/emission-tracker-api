@@ -46,7 +46,23 @@ async function main() {
 
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-  app.post("/api/transport-activity", transportActivityController.generateCreateHandler());
+  app.post("/api/transport-activity", async (req, res) => {
+    const result = await transportActivityController.create({
+      headers: { xNaiveAuth: req.headers["x-naive-auth"] },
+      body: req.body,
+    });
+    switch (result.status) {
+      case 201:
+        res.setHeader("location", `http://${req.headers.host}/api/transport-activity/${result.transportActivity.id}`);
+        return res.status(201).json({ message: "Created." });
+      case 401:
+        return res.status(401).json({ error: result.error });
+      case 403:
+        return res.status(403).json({ errors: result.errors });
+      default:
+        return res.status(500).send();
+    }
+  });
   app.get("/api/transport-activity", transportActivityController.generateListHandler());
   app.get("/api/transport-activity/:id", transportActivityController.generateDetailsHandler());
   app.put("/api/transport-activity/:id", transportActivityController.generateUpdateHandler());
