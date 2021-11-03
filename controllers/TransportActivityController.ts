@@ -27,108 +27,125 @@ export class TransportActivityController {
     this.transportActivityMapper = transportActivityMapper;
   }
 
-  async create({ headers, body }: { headers: { xNaiveAuth?: string | string[] }; body: any }): Promise<CreateResponse> {
+  async create({
+    headers,
+    params,
+  }: {
+    headers: { xNaiveAuth?: string | string[] };
+    params: any;
+  }): Promise<CreateResponse> {
     const { userId, error } = await this.authenticator.authenticateRequest({ headers });
     if (error || !userId) return { status: 401, error };
-    if (this.jsonValidator.validate<CreateBody>(createBodySchema, body)) {
+    if (this.jsonValidator.validate<CreateBody>(createBodySchema, params)) {
       const transportActivity = new TransportActivity({
-        ...body,
+        ...params,
         id: generateUUID(),
-        date: new Date(body.date),
+        date: new Date(params.date),
         createdBy: userId,
       });
       await this.transportActivityMapper.save({ transportActivity });
       return { status: 201, transportActivity };
     } else {
-      return { status: 403, errors: this.jsonValidator.getErrors(createBodySchema, body) };
+      return { status: 400, errors: this.jsonValidator.getErrors(createBodySchema, params) };
     }
   }
 
-  generateDetailsHandler(): RequestHandler {
-    return async (req, res) => {
-      const { userId, error } = await this.authenticator.authenticateRequest(req);
-      if (error || !userId) return res.status(401).send(error);
-      if (this.jsonValidator.validate<DetailsBody>(detailsBodySchema, req.params)) {
-        const transportActivity = await this.transportActivityMapper.get({ id: req.params.id });
-        if (!transportActivity) return res.status(404).send("Not found.");
-        return res.status(200).json(transportActivity);
-      } else {
-        return res.status(400).json(this.jsonValidator.getErrors(createBodySchema, req.body));
-      }
-    };
+  async details({
+    headers,
+    params,
+  }: {
+    headers: { xNaiveAuth?: string | string[] };
+    params: any;
+  }): Promise<DetailsResponse> {
+    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
+    if (error || !userId) return { status: 401, error };
+    if (this.jsonValidator.validate<DetailsParams>(detailsParamsSchema, params)) {
+      const transportActivity = await this.transportActivityMapper.get({ id: params.id });
+      if (!transportActivity) return { status: 404, error: "Not found" };
+      if (transportActivity.createdBy !== userId) return { status: 403, error: "Forbidden" };
+      return { status: 200, transportActivity };
+    } else {
+      return { status: 400, errors: this.jsonValidator.getErrors(createBodySchema, params) };
+    }
   }
 
-  generateListHandler(): RequestHandler {
-    return async (req, res) => {
-      const { userId, error } = await this.authenticator.authenticateRequest(req);
-      if (error || !userId) return res.status(401).send(error);
-      if (this.jsonValidator.validate<ListBody>(listBodySchema, req.query)) {
-        const transportActivities = await this.transportActivityMapper.list({
-          filter: {
-            createdBy: userId,
-            dateAfter: req.query.dateAfter && typeof req.query.dateAfter === "string" ? req.query.dateAfter : undefined,
-          },
-        });
-        const result = transportActivities.map((ta) => {
-          let item: { id: string; title?: string; totalEmissions?: number; date?: Date } = { id: ta.id };
-          if (req.query.title === "true") {
-            item.title = ta.title;
-          }
-          if (req.query.totalEmissions === "true") {
-            item.totalEmissions = ta.totalEmissions;
-          }
-          if (req.query.date === "true") {
-            item.date = ta.date;
-          }
-          return item;
-        });
-        return res.status(200).json(result);
-      } else {
-        return res.status(400).json(this.jsonValidator.getErrors(listBodySchema, req.body));
-      }
-    };
+  async list({ headers, params }: { headers: { xNaiveAuth?: string | string[] }; params: any }): Promise<ListResponse> {
+    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
+    if (error || !userId) return { status: 401, error };
+    if (this.jsonValidator.validate<ListParams>(listParamsSchema, params)) {
+      const transportActivities = await this.transportActivityMapper.list({
+        filter: {
+          createdBy: userId,
+          dateAfter: params.dateAfter && typeof params.dateAfter === "string" ? params.dateAfter : undefined,
+        },
+      });
+      const items = transportActivities.map((ta) => {
+        let item: { id: string; title?: string; totalEmissions?: number; date?: Date } = { id: ta.id };
+        if (params.title === "true") {
+          item.title = ta.title;
+        }
+        if (params.totalEmissions === "true") {
+          item.totalEmissions = ta.totalEmissions;
+        }
+        if (params.date === "true") {
+          item.date = ta.date;
+        }
+        return item;
+      });
+      return { status: 200, items: items };
+    } else {
+      return { status: 400, errors: this.jsonValidator.getErrors(listParamsSchema, params) };
+    }
   }
 
-  generateUpdateHandler(): RequestHandler {
-    return async (req, res) => {
-      const { userId, error } = await this.authenticator.authenticateRequest(req);
-      if (error || !userId) return res.status(401).send(error);
-      const params = { ...req.body, ...req.params };
-      if (this.jsonValidator.validate<UpdateParams>(updateParamsSchema, params)) {
-        const transportActivity = await this.transportActivityMapper.get({ id: params.id });
-        if (!transportActivity) return res.status(404).send("Not found.");
-        if (transportActivity.createdBy !== userId) return res.status(403).send("Forbidden");
-        transportActivity.title = params.title;
-        transportActivity.date = new Date(params.date);
-        transportActivity.distance = params.distance;
-        transportActivity.specificEmissions = params.specificEmissions;
-        transportActivity.fuelType = params.fuelType;
-        transportActivity.specificFuelConsumption = params.specificFuelConsumption;
-        transportActivity.totalFuelConsumption = params.totalFuelConsumption;
-        transportActivity.calcMode = params.calcMode;
-        transportActivity.persons = params.persons;
-        transportActivity.totalEmissions = params.totalEmissions;
-        transportActivity.updatedAt = new Date();
-        return res.status(200).send(await this.transportActivityMapper.save({ transportActivity }));
-      } else {
-        return res.status(400).json(this.jsonValidator.getErrors(updateParamsSchema, params));
-      }
-    };
+  async update({
+    headers,
+    params,
+  }: {
+    headers: { xNaiveAuth?: string | string[] };
+    params: any;
+  }): Promise<UpdateResponse> {
+    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
+    if (error || !userId) return { status: 401, error };
+    if (this.jsonValidator.validate<UpdateParams>(updateParamsSchema, params)) {
+      const transportActivity = await this.transportActivityMapper.get({ id: params.id });
+      if (!transportActivity) return { status: 404, error: "Not found" };
+      if (transportActivity.createdBy !== userId) return { status: 403, error: "Forbidden" };
+      transportActivity.title = params.title;
+      transportActivity.date = new Date(params.date);
+      transportActivity.distance = params.distance;
+      transportActivity.specificEmissions = params.specificEmissions;
+      transportActivity.fuelType = params.fuelType;
+      transportActivity.specificFuelConsumption = params.specificFuelConsumption;
+      transportActivity.totalFuelConsumption = params.totalFuelConsumption;
+      transportActivity.calcMode = params.calcMode;
+      transportActivity.persons = params.persons;
+      transportActivity.totalEmissions = params.totalEmissions;
+      transportActivity.updatedAt = new Date();
+      return { status: 200, transportActivity: await this.transportActivityMapper.save({ transportActivity }) };
+    } else {
+      return { status: 400, errors: this.jsonValidator.getErrors(updateParamsSchema, params) };
+    }
   }
 
-  generateDeleteHandler(): RequestHandler {
-    return async (req, res) => {
-      const { userId, error } = await this.authenticator.authenticateRequest(req);
-      if (error || !userId) return res.status(401).send(error);
-      if (this.jsonValidator.validate<DeleteParams>(deleteParamsSchema, req.params)) {
-        const transportActivity = await this.transportActivityMapper.get({ id: req.params.id });
-        if (!transportActivity) return res.status(404).send("Not found.");
-        await this.transportActivityMapper.delete({ id: req.params.id });
-        return res.status(204).send();
-      } else {
-        return res.status(400).json(this.jsonValidator.getErrors(deleteParamsSchema, req.params));
-      }
-    };
+  async delete({
+    headers,
+    params,
+  }: {
+    headers: { xNaiveAuth?: string | string[] };
+    params: any;
+  }): Promise<DeleteResponse> {
+    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
+    if (error || !userId) return { status: 401, error };
+    if (this.jsonValidator.validate<DeleteParams>(deleteParamsSchema, params)) {
+      const transportActivity = await this.transportActivityMapper.get({ id: params.id });
+      if (!transportActivity) return { status: 404, error: "Not found" };
+      if (transportActivity.createdBy !== userId) return { status: 403, error: "Forbidden" };
+      await this.transportActivityMapper.delete({ id: params.id });
+      return { status: 204 };
+    } else {
+      return { status: 400, errors: this.jsonValidator.getErrors(deleteParamsSchema, params) };
+    }
   }
 }
 
@@ -168,23 +185,23 @@ interface CreateResponseCreated {
   transportActivity: TransportActivity;
 }
 
-interface CreateResponseNotAuthenticated {
+interface CreateResponseUnauthorized {
   status: 401;
   error?: string;
 }
 
 interface CreateResponseBadRequest {
-  status: 403;
+  status: 400;
   errors?: any;
 }
 
-type CreateResponse = CreateResponseCreated | CreateResponseNotAuthenticated | CreateResponseBadRequest;
+type CreateResponse = CreateResponseCreated | CreateResponseUnauthorized | CreateResponseBadRequest;
 
-interface DetailsBody {
+interface DetailsParams {
   id: string;
 }
 
-const detailsBodySchema: JSONSchemaType<DetailsBody> = {
+const detailsParamsSchema: JSONSchemaType<DetailsParams> = {
   type: "object",
   properties: {
     id: { type: "string" },
@@ -192,14 +209,46 @@ const detailsBodySchema: JSONSchemaType<DetailsBody> = {
   required: ["id"],
 };
 
-interface ListBody {
+interface DetailsResponseOK {
+  status: 200;
+  transportActivity: TransportActivity;
+}
+
+interface DetailsResponseBadRequest {
+  status: 400;
+  errors?: any;
+}
+
+interface DetailsResponseUnauthorized {
+  status: 401;
+  error?: string;
+}
+
+interface DetailsResponseForbidden {
+  status: 403;
+  error?: string;
+}
+
+interface DetailsResponseNotFound {
+  status: 404;
+  error?: string;
+}
+
+type DetailsResponse =
+  | DetailsResponseOK
+  | DetailsResponseBadRequest
+  | DetailsResponseUnauthorized
+  | DetailsResponseForbidden
+  | DetailsResponseNotFound;
+
+interface ListParams {
   title?: "true";
   totalEmissions?: "true";
   date?: "true";
   dateAfter?: string;
 }
 
-const listBodySchema: JSONSchemaType<ListBody> = {
+const listParamsSchema: JSONSchemaType<ListParams> = {
   type: "object",
   properties: {
     title: { type: "string", nullable: true, enum: ["true"] },
@@ -208,6 +257,30 @@ const listBodySchema: JSONSchemaType<ListBody> = {
     dateAfter: { type: "string", nullable: true, format: "date-time" },
   },
 };
+
+interface ListItem {
+  id: string;
+  title?: string;
+  totalEmissions?: number;
+  date?: Date;
+}
+
+interface ListResponseOK {
+  status: 200;
+  items: ListItem[];
+}
+
+interface ListResponseBadRequest {
+  status: 400;
+  errors?: any;
+}
+
+interface ListResponseUnauthorized {
+  status: 401;
+  error?: string;
+}
+
+type ListResponse = ListResponseOK | ListResponseBadRequest | ListResponseUnauthorized;
 
 interface UpdateParams {
   id: string;
@@ -242,6 +315,38 @@ const updateParamsSchema: JSONSchemaType<UpdateParams> = {
   additionalProperties: false,
 };
 
+interface UpdateResponseOK {
+  status: 200;
+  transportActivity: TransportActivity;
+}
+
+interface UpdateResponseBadRequest {
+  status: 400;
+  errors?: any;
+}
+
+interface UpdateResponseUnauthroized {
+  status: 401;
+  error?: string;
+}
+
+interface UpdateResponseForbidden {
+  status: 403;
+  error?: string;
+}
+
+interface UpdateResponseNotFound {
+  status: 404;
+  error?: string;
+}
+
+type UpdateResponse =
+  | UpdateResponseOK
+  | UpdateResponseBadRequest
+  | UpdateResponseUnauthroized
+  | UpdateResponseForbidden
+  | UpdateResponseNotFound;
+
 interface DeleteParams {
   id: string;
 }
@@ -252,3 +357,34 @@ const deleteParamsSchema: JSONSchemaType<DeleteParams> = {
   required: ["id"],
   additionalProperties: false,
 };
+
+interface DeleteResponseNoContent {
+  status: 204;
+}
+
+interface DeleteResponseBadRequest {
+  status: 400;
+  errors?: any;
+}
+
+interface DeleteResponseUnauthorized {
+  status: 401;
+  error?: string;
+}
+
+interface DeleteResponseForbidden {
+  status: 403;
+  error?: string;
+}
+
+interface DeleteResponseNotFound {
+  status: 404;
+  error?: string;
+}
+
+type DeleteResponse =
+  | DeleteResponseNoContent
+  | DeleteResponseBadRequest
+  | DeleteResponseUnauthorized
+  | DeleteResponseForbidden
+  | DeleteResponseNotFound;

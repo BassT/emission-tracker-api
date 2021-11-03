@@ -50,7 +50,6 @@ export class InMemoryTransportActivityMapper implements TransportActivityMapper 
         ...this.transportActivities.slice(idx + 1),
       ];
     }
-    this.logger.log(`${InMemoryTransportActivityMapper.name}: Saved ${JSON.stringify(transportActivity, null, 2)}`);
     return transportActivity;
   }
 
