@@ -1,41 +1,28 @@
 import { JSONSchemaType } from "ajv";
-import { RequestHandler } from "express";
 import { TransportActivity } from "../entities/TransportActivity";
 import { TransportActivityMapper } from "../mappers/TransportActivityMapper";
-import { Authenticator } from "../services/Authenticator";
 import { JSONValidator } from "../services/JSONValidator";
 import { v4 as generateUUID } from "uuid";
 import { FuelType } from "../enums/FuelType";
 import { CalcMode } from "../enums/CalcMode";
 
 export class TransportActivityController {
-  authenticator: Authenticator;
   jsonValidator: JSONValidator;
   transportActivityMapper: TransportActivityMapper;
 
   constructor({
-    authenticator,
     jsonValidator,
     transportActivityMapper,
   }: {
-    authenticator: Authenticator;
     jsonValidator: JSONValidator;
     transportActivityMapper: TransportActivityMapper;
   }) {
-    this.authenticator = authenticator;
     this.jsonValidator = jsonValidator;
     this.transportActivityMapper = transportActivityMapper;
   }
 
-  async create({
-    headers,
-    params,
-  }: {
-    headers: { xNaiveAuth?: string | string[] };
-    params: any;
-  }): Promise<CreateResponse> {
-    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
-    if (error || !userId) return { status: 401, error };
+  async create({ userId, params }: { userId?: string; params: any }): Promise<CreateResponse> {
+    if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<CreateBody>(createBodySchema, params)) {
       const transportActivity = new TransportActivity({
         ...params,
@@ -50,15 +37,8 @@ export class TransportActivityController {
     }
   }
 
-  async details({
-    headers,
-    params,
-  }: {
-    headers: { xNaiveAuth?: string | string[] };
-    params: any;
-  }): Promise<DetailsResponse> {
-    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
-    if (error || !userId) return { status: 401, error };
+  async details({ userId, params }: { userId?: string; params: any }): Promise<DetailsResponse> {
+    if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<DetailsParams>(detailsParamsSchema, params)) {
       const transportActivity = await this.transportActivityMapper.get({ id: params.id });
       if (!transportActivity) return { status: 404, error: "Not found" };
@@ -69,9 +49,8 @@ export class TransportActivityController {
     }
   }
 
-  async list({ headers, params }: { headers: { xNaiveAuth?: string | string[] }; params: any }): Promise<ListResponse> {
-    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
-    if (error || !userId) return { status: 401, error };
+  async list({ userId, params }: { userId?: string; params: any }): Promise<ListResponse> {
+    if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<ListParams>(listParamsSchema, params)) {
       const transportActivities = await this.transportActivityMapper.list({
         filter: {
@@ -98,15 +77,8 @@ export class TransportActivityController {
     }
   }
 
-  async update({
-    headers,
-    params,
-  }: {
-    headers: { xNaiveAuth?: string | string[] };
-    params: any;
-  }): Promise<UpdateResponse> {
-    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
-    if (error || !userId) return { status: 401, error };
+  async update({ userId, params }: { userId?: string; params: any }): Promise<UpdateResponse> {
+    if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<UpdateParams>(updateParamsSchema, params)) {
       const transportActivity = await this.transportActivityMapper.get({ id: params.id });
       if (!transportActivity) return { status: 404, error: "Not found" };
@@ -128,15 +100,8 @@ export class TransportActivityController {
     }
   }
 
-  async delete({
-    headers,
-    params,
-  }: {
-    headers: { xNaiveAuth?: string | string[] };
-    params: any;
-  }): Promise<DeleteResponse> {
-    const { userId, error } = await this.authenticator.authenticateRequest({ headers });
-    if (error || !userId) return { status: 401, error };
+  async delete({ userId, params }: { userId?: string; params: any }): Promise<DeleteResponse> {
+    if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<DeleteParams>(deleteParamsSchema, params)) {
       const transportActivity = await this.transportActivityMapper.get({ id: params.id });
       if (!transportActivity) return { status: 404, error: "Not found" };

@@ -2,17 +2,15 @@ import { TransportActivity } from "../entities/TransportActivity";
 import { CalcMode } from "../enums/CalcMode";
 import { FuelType } from "../enums/FuelType";
 import { InMemoryTransportActivityMapper } from "../mappers/TransportActivityMapper";
-import { MockAuthenticatorBuilder } from "../services/Authenticator";
 import { JSONValidator } from "../services/JSONValidator";
 import { CreateBody, TransportActivityController } from "./TransportActivityController";
 
 describe("create", () => {
   it("should work correctly", async () => {
     const userId = "test-user-123";
-    const authenticator = new MockAuthenticatorBuilder().withUserId(userId).build();
     const jsonValidator = new JSONValidator();
     const transportActivityMapper = new InMemoryTransportActivityMapper({ logger: console });
-    const controller = new TransportActivityController({ authenticator, jsonValidator, transportActivityMapper });
+    const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
     const body: CreateBody = {
       calcMode: CalcMode.SpecificEmissions,
       date: new Date().toISOString(),
@@ -25,7 +23,7 @@ describe("create", () => {
       totalEmissions: 0,
       totalFuelConsumption: 0,
     };
-    const result = await controller.create({ headers: { xNaiveAuth: userId }, params: body });
+    const result = await controller.create({ userId, params: body });
     expect(result.status).toBe(201);
     expect(transportActivityMapper.transportActivities.length).toBe(1);
   });
@@ -34,7 +32,6 @@ describe("create", () => {
 describe("details", () => {
   it("should work correctly", async () => {
     const userId = "test-user-123";
-    const authenticator = new MockAuthenticatorBuilder().withUserId(userId).build();
     const jsonValidator = new JSONValidator();
     const transportActivity = new TransportActivity({
       id: "test",
@@ -54,8 +51,8 @@ describe("details", () => {
       logger: console,
       transportActivites: [transportActivity],
     });
-    const controller = new TransportActivityController({ authenticator, jsonValidator, transportActivityMapper });
-    const result = await controller.details({ headers: { xNaiveAuth: userId }, params: { id: transportActivity.id } });
+    const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
+    const result = await controller.details({ userId, params: { id: transportActivity.id } });
     expect(result.status).toBe(200);
   });
 });
@@ -63,7 +60,6 @@ describe("details", () => {
 describe("list", () => {
   it("should work correctly", async () => {
     const userId = "test-user-123";
-    const authenticator = new MockAuthenticatorBuilder().withUserId(userId).build();
     const jsonValidator = new JSONValidator();
     const transportActivity1 = new TransportActivity({
       id: "test",
@@ -97,8 +93,8 @@ describe("list", () => {
       logger: console,
       transportActivites: [transportActivity1, transportActivity2],
     });
-    const controller = new TransportActivityController({ authenticator, jsonValidator, transportActivityMapper });
-    const result = await controller.list({ headers: { xNaiveAuth: userId }, params: {} });
+    const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
+    const result = await controller.list({ userId, params: {} });
     expect(result.status).toBe(200);
     if (result.status === 200) {
       expect(result.items).toHaveLength(2);
@@ -111,7 +107,6 @@ describe("list", () => {
 describe("update", () => {
   it("should work correctly", async () => {
     const userId = "test-user-123";
-    const authenticator = new MockAuthenticatorBuilder().withUserId(userId).build();
     const jsonValidator = new JSONValidator();
     const transportActivity = new TransportActivity({
       id: "test",
@@ -131,9 +126,9 @@ describe("update", () => {
       logger: console,
       transportActivites: [transportActivity],
     });
-    const controller = new TransportActivityController({ authenticator, jsonValidator, transportActivityMapper });
+    const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
     const result = await controller.update({
-      headers: { xNaiveAuth: userId },
+      userId,
       params: {
         id: transportActivity.id,
         title: "test 2",
@@ -160,7 +155,6 @@ describe("update", () => {
 describe("delete", () => {
   it("should work correctly", async () => {
     const userId = "test-user-123";
-    const authenticator = new MockAuthenticatorBuilder().withUserId(userId).build();
     const jsonValidator = new JSONValidator();
     const transportActivity1 = new TransportActivity({
       id: "test",
@@ -194,8 +188,8 @@ describe("delete", () => {
       logger: console,
       transportActivites: [transportActivity1, transportActivity2],
     });
-    const controller = new TransportActivityController({ authenticator, jsonValidator, transportActivityMapper });
-    const result = await controller.delete({ headers: { xNaiveAuth: userId }, params: { id: transportActivity1.id } });
+    const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
+    const result = await controller.delete({ userId, params: { id: transportActivity1.id } });
     expect(result.status).toBe(204);
     expect(transportActivityMapper.transportActivities).toHaveLength(1);
     expect(transportActivityMapper.transportActivities[0].id).toBe(transportActivity2.id);

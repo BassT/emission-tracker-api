@@ -12,7 +12,7 @@
       "url": "https://emission-tracker-api.azurewebsites.net/api"
     }
   ],
-  "security": [{ "NaiveAuth": [] }],
+  "security": [{ "AzureADBearerStrategy": [] }],
   "paths": {
     "/transport-activity": {
       "get": {
@@ -275,10 +275,10 @@
   },
   "components": {
     "securitySchemes": {
-      "NaiveAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-Naive-Auth"
+      "AzureADBearerStrategy": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

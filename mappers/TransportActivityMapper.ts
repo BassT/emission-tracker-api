@@ -88,10 +88,10 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
   async list(params: ListParams): Promise<TransportActivity[]> {
     let filter: FilterQuery<TransportActivity> = {};
     if (params.filter.createdBy) {
-      filter = { createdBy: params.filter.createdBy };
+      filter = { ...filter, createdBy: params.filter.createdBy };
     }
     if (params.filter.dateAfter) {
-      filter = { date: { $gt: new Date(params.filter.dateAfter) } };
+      filter = { ...filter, date: { $gt: new Date(params.filter.dateAfter) } };
     }
     const docs = await TransportActivityModel.find(filter);
     return docs.map((doc) => new TransportActivity(doc));
