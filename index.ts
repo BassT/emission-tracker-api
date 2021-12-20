@@ -1,26 +1,13 @@
-import arg from "arg";
-import morgan from "morgan";
+import "dotenv/config";
 import express from "express";
-import swaggerUi from "swagger-ui-express";
+import morgan from "morgan";
 import passport from "passport";
 import { BearerStrategy as AzureADBearerStrategy } from "passport-azure-ad";
+import swaggerUi from "swagger-ui-express";
 import { TransportActivityController } from "./controllers/TransportActivityController";
 import { CosmosDBTransportActivityMapper } from "./mappers/TransportActivityMapper";
-import { JSONValidator } from "./services/JSONValidator";
 import swaggerDoc from "./openapi.json";
-
-const args = arg({
-  "--secretsPath": String,
-});
-
-if (!process.env.MONGO_URL) {
-  const secretsPath = args["--secretsPath"];
-  if (!secretsPath) {
-    throw new Error("Missing command line argument --secretsPath");
-  }
-  const secrets = require(secretsPath);
-  process.env.MONGO_URL = secrets.MONGO_URL;
-}
+import { JSONValidator } from "./services/JSONValidator";
 
 async function main() {
   const transportActivityMapper = await CosmosDBTransportActivityMapper.getInstance();
