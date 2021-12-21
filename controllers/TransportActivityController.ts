@@ -52,12 +52,24 @@ export class TransportActivityController {
   async list({ userId, params }: { userId?: string; params: any }): Promise<ListResponse> {
     if (!userId) return { status: 401 };
     if (this.jsonValidator.validate<ListParams>(listParamsSchema, params)) {
-      const transportActivities = await this.transportActivityMapper.list({
+      let transportActivities = await this.transportActivityMapper.list({
         filter: {
           createdBy: userId,
           dateAfter: params.dateAfter && typeof params.dateAfter === "string" ? params.dateAfter : undefined,
         },
       });
+      if (params.sortBy === "date") {
+        transportActivities = transportActivities.sort((a, b) => {
+          switch (params.sortDirection) {
+            case "ASC":
+              return a.date.getTime() - b.date.getTime();
+            case "DESC":
+              return b.date.getTime() - a.date.getTime();
+            default:
+              return a.date.getTime() - b.date.getTime();
+          }
+        });
+      }
       const items = transportActivities.map((ta) => {
         let item: { id: string; title?: string; totalEmissions?: number; date?: Date } = { id: ta.id };
         if (params.title === "true") {
@@ -71,7 +83,7 @@ export class TransportActivityController {
         }
         return item;
       });
-      return { status: 200, items: items };
+      return { status: 200, items };
     } else {
       return { status: 400, errors: this.jsonValidator.getErrors(listParamsSchema, params) };
     }
@@ -211,6 +223,8 @@ interface ListParams {
   totalEmissions?: "true";
   date?: "true";
   dateAfter?: string;
+  sortBy?: "date";
+  sortDirection?: "ASC" | "DESC";
 }
 
 const listParamsSchema: JSONSchemaType<ListParams> = {
@@ -220,6 +234,8 @@ const listParamsSchema: JSONSchemaType<ListParams> = {
     totalEmissions: { type: "string", nullable: true, enum: ["true"] },
     date: { type: "string", nullable: true, enum: ["true"] },
     dateAfter: { type: "string", nullable: true, format: "date-time" },
+    sortBy: { type: "string", nullable: true, enum: ["date"] },
+    sortDirection: { type: "string", nullable: true, enum: ["ASC", "DESC"] },
   },
 };
 

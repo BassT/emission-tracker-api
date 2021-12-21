@@ -49,6 +49,24 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "enum": ["date"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "schema": {
+              "type": "string",
+              "nullable": true,
+              "enum": ["ASC", "DESC"]
+            }
           }
         ],
         "responses": {
