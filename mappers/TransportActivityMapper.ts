@@ -65,7 +65,10 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     if (!process.env.MONGO_URL) {
       throw new Error("Missing environment variable MONGO_URL");
     }
-    await mongoose.connect(process.env.MONGO_URL);
+    if (!process.env.DB_NAME) {
+      throw new Error("Missing environment variable DB_NAME");
+    }
+    await mongoose.connect(process.env.MONGO_URL, { dbName: process.env.DB_NAME });
     console.log(CosmosDBTransportActivityMapper.name, "Connected");
     if (!CosmosDBTransportActivityMapper.instance) {
       CosmosDBTransportActivityMapper.instance = new CosmosDBTransportActivityMapper();
