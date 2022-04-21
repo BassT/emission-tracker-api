@@ -154,7 +154,7 @@ async function main() {
       });
       switch (result.status) {
         case 204:
-          return res.status(200).send();
+          return res.status(204).send();
         case 400:
           return res.status(400).json({ errors: result.errors });
         case 401:
