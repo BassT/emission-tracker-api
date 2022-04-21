@@ -9,6 +9,9 @@
       "url": "http://localhost:3000/api"
     },
     {
+      "url": "https://emission-tracker-api-test.azurewebsites.net/api"
+    },
+    {
       "url": "https://emission-tracker-api.azurewebsites.net/api"
     }
   ],
