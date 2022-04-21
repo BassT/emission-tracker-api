@@ -289,6 +289,125 @@
           }
         }
       }
+    },
+    "/transport-activity/import": {
+      "post": {
+        "operationId": "importTransportActivitites",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "title",
+                        "date",
+                        "distance",
+                        "specificEmissions",
+                        "fuelType",
+                        "specificFuelConsumption",
+                        "totalFuelConsumption",
+                        "calcMode",
+                        "persons",
+                        "totalEmissions",
+                        "createdBy",
+                        "createdAt"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "object",
+                          "required": ["$date"],
+                          "properties": {
+                            "$date": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "distance": {
+                          "type": "number"
+                        },
+                        "specificEmissions": {
+                          "type": "number"
+                        },
+                        "fuelType": {
+                          "type": "string"
+                        },
+                        "specificFuelConsumption": {
+                          "type": "number"
+                        },
+                        "totalFuelConsumption": {
+                          "type": "number"
+                        },
+                        "calcMode": {
+                          "type": "string"
+                        },
+                        "persons": {
+                          "type": "integer"
+                        },
+                        "totalEmissions": {
+                          "type": "number"
+                        },
+                        "createdBy": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "object",
+                          "required": ["$date"],
+                          "properties": {
+                            "$date": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "updatedAt": {
+                          "type": "object",
+                          "required": ["$date"],
+                          "properties": {
+                            "$date": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "nullable": true
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import successful.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

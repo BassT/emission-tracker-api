@@ -169,6 +169,24 @@ async function main() {
     }
   );
 
+  app.post(
+    "/api/transport-activity/import",
+    passport.authenticate("oauth-bearer", { session: false }),
+    async (req, res) => {
+      const result = await transportActivityController.import({ userId: req.user?.id, params: { ...req.body } });
+      switch (result.status) {
+        case 200:
+          return res.status(200).send(result.message);
+        case 400:
+          return res.status(400).json({ errors: result.errors });
+        case 401:
+          return res.status(401).send();
+        default:
+          return res.status(500).send();
+      }
+    }
+  );
+
   app.listen(port, () => {
     console.log(`App listening at port ${port}`);
     console.log("Navigate to /docs to interact with API");

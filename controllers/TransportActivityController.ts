@@ -124,6 +124,29 @@ export class TransportActivityController {
       return { status: 400, errors: this.jsonValidator.getErrors(deleteParamsSchema, params) };
     }
   }
+
+  async import({ userId, params }: { userId?: string; params: any }): Promise<ImportResponse> {
+    if (!userId) return { status: 401 };
+    if (this.jsonValidator.validate<ImportParams>(importParamsSchema, params)) {
+      const transportActivities = params.data
+        .filter((value) => value.createdBy === userId)
+        .map(
+          (value) =>
+            new TransportActivity({
+              ...value,
+              date: new Date(value.date.$date),
+              createdAt: new Date(value.createdAt.$date),
+              updatedAt: value.updatedAt ? new Date(value.updatedAt.$date) : undefined,
+            })
+        );
+      for (const transportActivity of transportActivities) {
+        await this.transportActivityMapper.save({ transportActivity });
+      }
+      return { status: 200, message: `Imported ${transportActivities.length} transport activities successfully.` };
+    } else {
+      return { status: 400, errors: this.jsonValidator.getErrors(importParamsSchema, params) };
+    }
+  }
 }
 
 export interface CreateBody {
@@ -369,3 +392,141 @@ type DeleteResponse =
   | DeleteResponseUnauthorized
   | DeleteResponseForbidden
   | DeleteResponseNotFound;
+
+interface ImportParams {
+  data: Array<{
+    id: string;
+    title: string;
+    date: {
+      $date: string;
+    };
+    distance: number;
+    specificEmissions: 0;
+    fuelType: FuelType;
+    specificFuelConsumption: number;
+    totalFuelConsumption: number;
+    calcMode: CalcMode;
+    persons: number;
+    totalEmissions: number;
+    createdBy: string;
+    createdAt: {
+      $date: string;
+    };
+    updatedAt?: {
+      $date: string;
+    };
+  }>;
+}
+
+const importParamsSchema: JSONSchemaType<ImportParams> = {
+  type: "object",
+  required: ["data"],
+  properties: {
+    data: {
+      type: "array",
+      items: {
+        type: "object",
+        required: [
+          "id",
+          "title",
+          "date",
+          "distance",
+          "specificEmissions",
+          "fuelType",
+          "specificFuelConsumption",
+          "totalFuelConsumption",
+          "calcMode",
+          "persons",
+          "totalEmissions",
+          "createdBy",
+          "createdAt",
+        ],
+        properties: {
+          id: {
+            type: "string",
+          },
+          title: {
+            type: "string",
+          },
+          date: {
+            type: "object",
+            required: ["$date"],
+            properties: {
+              $date: {
+                type: "string",
+                format: "date-time",
+              },
+            },
+            additionalProperties: false,
+          },
+          distance: {
+            type: "number",
+          },
+          specificEmissions: {
+            type: "number",
+          },
+          fuelType: {
+            type: "string",
+          },
+          specificFuelConsumption: {
+            type: "number",
+          },
+          totalFuelConsumption: {
+            type: "number",
+          },
+          calcMode: {
+            type: "string",
+          },
+          persons: {
+            type: "integer",
+          },
+          totalEmissions: {
+            type: "number",
+          },
+          createdBy: {
+            type: "string",
+          },
+          createdAt: {
+            type: "object",
+            required: ["$date"],
+            properties: {
+              $date: {
+                type: "string",
+              },
+            },
+            additionalProperties: false,
+          },
+          updatedAt: {
+            type: "object",
+            required: ["$date"],
+            properties: {
+              $date: {
+                type: "string",
+              },
+            },
+            additionalProperties: false,
+            nullable: true,
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+  additionalProperties: false,
+};
+
+interface ImportResponseOK {
+  status: 200;
+  message: string;
+}
+
+interface ImportResponseUnauthorized {
+  status: 401;
+}
+
+interface ImportResponseBadRequest {
+  status: 400;
+  errors?: any;
+}
+
+type ImportResponse = ImportResponseOK | ImportResponseUnauthorized | ImportResponseBadRequest;
