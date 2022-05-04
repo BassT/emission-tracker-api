@@ -111,23 +111,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": { "type": "string" },
-                  "date": { "type": "string", "format": "date-time" },
-                  "distance": { "type": "number" },
-                  "specificEmissions": { "type": "number" },
-                  "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
-                  "specificFuelConsumption": { "type": "number" },
-                  "totalFuelConsumption": { "type": "number" },
-                  "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
-                  "persons": { "type": "number" },
-                  "totalEmissions": { "type": "number" }
-                },
-                "required": ["title", "date", "distance", "specificEmissions", "totalEmissions"],
-                "additionalProperties": false
-              }
+              "schema": { "$ref": "#/components/schemas/transportActivityReqBody" }
             }
           }
         },
@@ -186,25 +170,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string" },
-                    "title": { "type": "string" },
-                    "date": { "type": "string", "format": "date-time" },
-                    "distance": { "type": "number" },
-                    "specificEmissions": { "type": "number" },
-                    "totalEmissions": { "type": "number" },
-                    "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
-                    "specificFuelConsumption": { "type": "number" },
-                    "totalFuelConsumption": { "type": "number" },
-                    "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
-                    "persons": { "type": "number" },
-                    "createdBy": { "type": "string" },
-                    "createdAt": { "type": "string", "format": "date-time" },
-                    "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/transportActivity" }
               }
             }
           }
@@ -243,23 +209,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": { "type": "string" },
-                  "date": { "type": "string", "format": "date-time" },
-                  "distance": { "type": "number" },
-                  "specificEmissions": { "type": "number" },
-                  "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
-                  "specificFuelConsumption": { "type": "number" },
-                  "totalFuelConsumption": { "type": "number" },
-                  "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
-                  "persons": { "type": "number" },
-                  "totalEmissions": { "type": "number" }
-                },
-                "required": ["title", "date"],
-                "additionalProperties": false
-              }
+              "schema": { "$ref": "#/components/schemas/transportActivityReqBody" }
             }
           }
         },
@@ -268,25 +218,7 @@
             "description": "Update successful.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string" },
-                    "title": { "type": "string" },
-                    "date": { "type": "string", "format": "date-time" },
-                    "distance": { "type": "number" },
-                    "specificEmissions": { "type": "number" },
-                    "totalEmissions": { "type": "number" },
-                    "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
-                    "specificFuelConsumption": { "type": "number" },
-                    "totalFuelConsumption": { "type": "number" },
-                    "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
-                    "persons": { "type": "number" },
-                    "createdBy": { "type": "string" },
-                    "createdAt": { "type": "string", "format": "date-time" },
-                    "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/transportActivity" }
               }
             }
           }
@@ -306,29 +238,8 @@
                   "data": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "required": [
-                        "id",
-                        "title",
-                        "date",
-                        "distance",
-                        "specificEmissions",
-                        "fuelType",
-                        "specificFuelConsumption",
-                        "totalFuelConsumption",
-                        "calcMode",
-                        "persons",
-                        "totalEmissions",
-                        "createdBy",
-                        "createdAt"
-                      ],
+                      "allOf": [{ "$ref": "#/components/schemas/transportActivity" }],
                       "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
                         "date": {
                           "type": "object",
                           "required": ["$date"],
@@ -339,33 +250,6 @@
                             }
                           },
                           "additionalProperties": false
-                        },
-                        "distance": {
-                          "type": "number"
-                        },
-                        "specificEmissions": {
-                          "type": "number"
-                        },
-                        "fuelType": {
-                          "type": "string"
-                        },
-                        "specificFuelConsumption": {
-                          "type": "number"
-                        },
-                        "totalFuelConsumption": {
-                          "type": "number"
-                        },
-                        "calcMode": {
-                          "type": "string"
-                        },
-                        "persons": {
-                          "type": "integer"
-                        },
-                        "totalEmissions": {
-                          "type": "number"
-                        },
-                        "createdBy": {
-                          "type": "string"
                         },
                         "createdAt": {
                           "type": "object",
@@ -388,8 +272,7 @@
                           "additionalProperties": false,
                           "nullable": true
                         }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   }
                 },
@@ -414,6 +297,37 @@
     }
   },
   "components": {
+    "schemas": {
+      "transportActivity": {
+        "allOf": [{ "$ref": "#/components/schemas/transportActivityReqBody" }],
+        "type": "object",
+        "required": ["id", "createdBy", "createdAt"],
+        "properties": {
+          "id": { "type": "string" },
+          "createdBy": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "transportActivityReqBody": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "totalEmissions": { "type": "number" },
+          "distance": { "type": "number" },
+          "specificEmissions": { "type": "number" },
+          "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
+          "specificFuelConsumption": { "type": "number" },
+          "totalFuelConsumption": { "type": "number" },
+          "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+          "persons": { "type": "number" },
+          "capacityUtilization": { "type": "number" }
+        },
+        "required": ["title", "date", "totalEmissions"],
+        "additionalProperties": false
+      }
+    },
     "securitySchemes": {
       "AzureADBearerStrategy": {
         "type": "http",
