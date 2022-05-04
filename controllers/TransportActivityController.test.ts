@@ -12,16 +12,17 @@ describe("create", () => {
     const transportActivityMapper = new InMemoryTransportActivityMapper({ logger: console });
     const controller = new TransportActivityController({ jsonValidator, transportActivityMapper });
     const body: CreateBody = {
-      calcMode: CalcMode.SpecificEmissions,
+      title: "Car drive",
       date: new Date().toISOString(),
+      totalEmissions: 0,
+      calcMode: CalcMode.SpecificEmissions,
       distance: 0,
       fuelType: FuelType.Diesel,
       persons: 1,
       specificEmissions: 0,
       specificFuelConsumption: 0,
-      title: "Car drive",
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     };
     const result = await controller.create({ userId, params: body });
     expect(result.status).toBe(201);
@@ -37,6 +38,7 @@ describe("details", () => {
       id: "test",
       title: "test",
       date: new Date(),
+      totalEmissions: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -44,8 +46,8 @@ describe("details", () => {
       createdBy: userId,
       persons: 1,
       specificFuelConsumption: 0,
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -65,6 +67,7 @@ describe("list", () => {
       id: "test",
       title: "test",
       date: new Date(),
+      totalEmissions: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -72,13 +75,14 @@ describe("list", () => {
       createdBy: userId,
       persons: 1,
       specificFuelConsumption: 0,
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivity2 = new TransportActivity({
       id: "test-2",
       title: "test 2",
       date: new Date(),
+      totalEmissions: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -86,8 +90,8 @@ describe("list", () => {
       createdBy: userId,
       persons: 1,
       specificFuelConsumption: 0,
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -112,6 +116,7 @@ describe("update", () => {
       id: "test",
       title: "test",
       date: new Date(),
+      totalFuelConsumption: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -120,7 +125,7 @@ describe("update", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalEmissions: 0,
-      totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -133,14 +138,15 @@ describe("update", () => {
         id: transportActivity.id,
         title: "test 2",
         date: new Date().toISOString(),
+        totalEmissions: transportActivity.totalEmissions,
         distance: transportActivity.distance,
         specificEmissions: transportActivity.specificEmissions,
         fuelType: transportActivity.fuelType,
         calcMode: transportActivity.calcMode,
         persons: transportActivity.persons,
         specificFuelConsumption: transportActivity.specificFuelConsumption,
-        totalEmissions: transportActivity.totalEmissions,
         totalFuelConsumption: transportActivity.totalFuelConsumption,
+        capacityUtilization: transportActivity.capacityUtilization,
       },
     });
     expect(result.status).toBe(200);
@@ -160,6 +166,7 @@ describe("delete", () => {
       id: "test",
       title: "test",
       date: new Date(),
+      totalEmissions: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -167,13 +174,14 @@ describe("delete", () => {
       createdBy: userId,
       persons: 1,
       specificFuelConsumption: 0,
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivity2 = new TransportActivity({
       id: "test-2",
       title: "test 2",
       date: new Date(),
+      totalEmissions: 0,
       distance: 0,
       specificEmissions: 0,
       fuelType: FuelType.Diesel,
@@ -181,8 +189,8 @@ describe("delete", () => {
       createdBy: userId,
       persons: 1,
       specificFuelConsumption: 0,
-      totalEmissions: 0,
       totalFuelConsumption: 0,
+      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,

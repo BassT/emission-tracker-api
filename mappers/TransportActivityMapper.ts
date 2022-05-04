@@ -122,6 +122,7 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     totalFuelConsumption,
     calcMode,
     persons,
+    capacityUtilization,
     totalEmissions,
     updatedAt,
   }: {
@@ -131,13 +132,14 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
       };
     title: string;
     date: Date;
-    distance: number;
-    specificEmissions: number;
-    fuelType: FuelType;
-    specificFuelConsumption: number;
-    totalFuelConsumption: number;
-    calcMode: CalcMode;
-    persons: number;
+    distance?: number;
+    specificEmissions?: number;
+    fuelType?: FuelType;
+    specificFuelConsumption?: number;
+    totalFuelConsumption?: number;
+    calcMode?: CalcMode;
+    persons?: number;
+    capacityUtilization?: number;
     totalEmissions: number;
     updatedAt?: Date;
   }) {
@@ -150,6 +152,7 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     doc.totalFuelConsumption = totalFuelConsumption;
     doc.calcMode = calcMode;
     doc.persons = persons;
+    doc.capacityUtilization = capacityUtilization;
     doc.totalEmissions = totalEmissions;
     doc.updatedAt = updatedAt;
     return doc;
@@ -169,6 +172,7 @@ const TransportActivityModel = model<TransportActivity>(
     totalFuelConsumption: Number,
     calcMode: String,
     persons: Number,
+    capacityUtilization: Number,
     totalEmissions: Number,
     createdBy: String,
     createdAt: Date,

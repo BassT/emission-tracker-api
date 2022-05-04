@@ -5,13 +5,14 @@ export class TransportActivity {
   id: string;
   title: string;
   date: Date;
-  distance: number;
-  specificEmissions: number;
-  fuelType: FuelType;
-  specificFuelConsumption: number;
-  totalFuelConsumption: number;
-  calcMode: CalcMode;
-  persons: number;
+  distance?: number;
+  specificEmissions?: number;
+  fuelType?: FuelType;
+  specificFuelConsumption?: number;
+  totalFuelConsumption?: number;
+  calcMode?: CalcMode;
+  persons?: number;
+  capacityUtilization?: number;
   totalEmissions: number;
   /**
    * ID of user who created this transport activity.
@@ -39,13 +40,14 @@ export class TransportActivity {
     id: string;
     title: string;
     date: Date;
-    distance: number;
-    specificEmissions: number;
-    fuelType: FuelType;
-    specificFuelConsumption: number;
-    totalFuelConsumption: number;
-    calcMode: CalcMode;
-    persons: number;
+    distance?: number;
+    specificEmissions?: number;
+    fuelType?: FuelType;
+    specificFuelConsumption?: number;
+    totalFuelConsumption?: number;
+    calcMode?: CalcMode;
+    persons?: number;
+    capacityUtilization?: number;
     totalEmissions: number;
     createdBy: string;
     createdAt?: Date;

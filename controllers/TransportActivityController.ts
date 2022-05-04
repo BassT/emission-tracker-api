@@ -152,13 +152,14 @@ export class TransportActivityController {
 export interface CreateBody {
   title: string;
   date: string;
-  distance: number;
-  specificEmissions: number;
-  fuelType: FuelType;
-  specificFuelConsumption: number;
-  totalFuelConsumption: number;
-  calcMode: CalcMode;
-  persons: number;
+  distance?: number;
+  specificEmissions?: number;
+  fuelType?: FuelType;
+  specificFuelConsumption?: number;
+  totalFuelConsumption?: number;
+  calcMode?: CalcMode;
+  persons?: number;
+  capacityUtilization?: number;
   totalEmissions: number;
 }
 
@@ -167,16 +168,25 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
   properties: {
     title: { type: "string" },
     date: { type: "string", format: "date-time" },
-    distance: { type: "number" },
-    specificEmissions: { type: "number" },
-    fuelType: { type: "string", enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG] },
-    specificFuelConsumption: { type: "number" },
-    totalFuelConsumption: { type: "number" },
-    calcMode: { type: "string", enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel] },
-    persons: { type: "number" },
+    distance: { type: "number", nullable: true },
+    specificEmissions: { type: "number", nullable: true },
+    fuelType: {
+      type: "string",
+      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG],
+      nullable: true,
+    },
+    specificFuelConsumption: { type: "number", nullable: true },
+    totalFuelConsumption: { type: "number", nullable: true },
+    calcMode: {
+      type: "string",
+      enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel],
+      nullable: true,
+    },
+    persons: { type: "number", nullable: true },
+    capacityUtilization: { type: "number", nullable: true },
     totalEmissions: { type: "number" },
   },
-  required: ["title", "date"],
+  required: ["title", "date", "totalEmissions"],
   additionalProperties: false,
 };
 
@@ -290,13 +300,14 @@ interface UpdateParams {
   id: string;
   title: string;
   date: string;
-  distance: number;
-  specificEmissions: number;
-  fuelType: FuelType;
-  specificFuelConsumption: number;
-  totalFuelConsumption: number;
-  calcMode: CalcMode;
-  persons: number;
+  distance?: number;
+  specificEmissions?: number;
+  fuelType?: FuelType;
+  specificFuelConsumption?: number;
+  totalFuelConsumption?: number;
+  calcMode?: CalcMode;
+  persons?: number;
+  capacityUtilization?: number;
   totalEmissions: number;
 }
 
@@ -306,16 +317,25 @@ const updateParamsSchema: JSONSchemaType<UpdateParams> = {
     id: { type: "string" },
     title: { type: "string" },
     date: { type: "string", format: "date-time" },
-    distance: { type: "number" },
-    specificEmissions: { type: "number" },
-    fuelType: { type: "string", enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG] },
-    specificFuelConsumption: { type: "number" },
-    totalFuelConsumption: { type: "number" },
-    calcMode: { type: "string", enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel] },
-    persons: { type: "number" },
+    distance: { type: "number", nullable: true },
+    specificEmissions: { type: "number", nullable: true },
+    fuelType: {
+      type: "string",
+      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG],
+      nullable: true,
+    },
+    specificFuelConsumption: { type: "number", nullable: true },
+    totalFuelConsumption: { type: "number", nullable: true },
+    calcMode: {
+      type: "string",
+      enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel],
+      nullable: true,
+    },
+    persons: { type: "number", nullable: true },
+    capacityUtilization: { type: "number", nullable: true },
     totalEmissions: { type: "number" },
   },
-  required: ["id", "title", "date"],
+  required: ["id", "title", "date", "totalEmissions"],
   additionalProperties: false,
 };
 
@@ -400,13 +420,14 @@ interface ImportParams {
     date: {
       $date: string;
     };
-    distance: number;
-    specificEmissions: 0;
-    fuelType: FuelType;
-    specificFuelConsumption: number;
-    totalFuelConsumption: number;
-    calcMode: CalcMode;
-    persons: number;
+    distance?: number;
+    specificEmissions?: 0;
+    fuelType?: FuelType;
+    specificFuelConsumption?: number;
+    totalFuelConsumption?: number;
+    calcMode?: CalcMode;
+    persons?: number;
+    capacityUtilization?: number;
     totalEmissions: number;
     createdBy: string;
     createdAt: {
@@ -426,21 +447,7 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
       type: "array",
       items: {
         type: "object",
-        required: [
-          "id",
-          "title",
-          "date",
-          "distance",
-          "specificEmissions",
-          "fuelType",
-          "specificFuelConsumption",
-          "totalFuelConsumption",
-          "calcMode",
-          "persons",
-          "totalEmissions",
-          "createdBy",
-          "createdAt",
-        ],
+        required: ["id", "title", "date", "totalEmissions", "createdBy", "createdAt"],
         properties: {
           id: {
             type: "string",
@@ -461,24 +468,35 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
           },
           distance: {
             type: "number",
+            nullable: true,
           },
           specificEmissions: {
             type: "number",
+            nullable: true,
           },
           fuelType: {
             type: "string",
+            nullable: true,
           },
           specificFuelConsumption: {
             type: "number",
+            nullable: true,
           },
           totalFuelConsumption: {
             type: "number",
+            nullable: true,
           },
           calcMode: {
             type: "string",
+            nullable: true,
           },
           persons: {
             type: "integer",
+            nullable: true,
+          },
+          capacityUtilization: {
+            type: "number",
+            nullable: true,
           },
           totalEmissions: {
             type: "number",
