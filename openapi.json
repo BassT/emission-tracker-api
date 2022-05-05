@@ -47,6 +47,14 @@
           },
           {
             "in": "query",
+            "name": "transportMode",
+            "schema": {
+              "type": "string",
+              "enum": ["true"]
+            }
+          },
+          {
+            "in": "query",
             "name": "dateAfter",
             "schema": {
               "type": "string",
@@ -97,7 +105,8 @@
                         "type": "string",
                         "nullable": true,
                         "format": "date-time"
-                      }
+                      },
+                      "transportMode": { "$ref": "#/components/schemas/transportMode" }
                     }
                   }
                 }
@@ -322,11 +331,13 @@
           "totalFuelConsumption": { "type": "number" },
           "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
           "persons": { "type": "number" },
-          "capacityUtilization": { "type": "number" }
+          "capacityUtilization": { "type": "number" },
+          "transportMode": { "$ref": "#/components/schemas/transportMode" }
         },
         "required": ["title", "date", "totalEmissions"],
         "additionalProperties": false
-      }
+      },
+      "transportMode": { "type": "string", "enum": ["Car", "Train"] }
     },
     "securitySchemes": {
       "AzureADBearerStrategy": {

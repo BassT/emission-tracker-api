@@ -1,10 +1,12 @@
 import { CalcMode } from "../enums/CalcMode";
 import { FuelType } from "../enums/FuelType";
+import { TransportMode } from "../enums/TransportMode";
 
 export class TransportActivity {
   id: string;
   title: string;
   date: Date;
+  transportMode?: TransportMode;
   distance?: number;
   specificEmissions?: number;
   fuelType?: FuelType;
@@ -25,6 +27,7 @@ export class TransportActivity {
     id,
     title,
     date,
+    totalEmissions,
     distance,
     specificEmissions,
     fuelType,
@@ -32,7 +35,8 @@ export class TransportActivity {
     totalFuelConsumption,
     calcMode,
     persons,
-    totalEmissions,
+    capacityUtilization,
+    transportMode,
     createdBy,
     createdAt,
     updatedAt,
@@ -40,6 +44,7 @@ export class TransportActivity {
     id: string;
     title: string;
     date: Date;
+    totalEmissions: number;
     distance?: number;
     specificEmissions?: number;
     fuelType?: FuelType;
@@ -48,7 +53,7 @@ export class TransportActivity {
     calcMode?: CalcMode;
     persons?: number;
     capacityUtilization?: number;
-    totalEmissions: number;
+    transportMode?: TransportMode;
     createdBy: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -56,6 +61,7 @@ export class TransportActivity {
     this.id = id;
     this.title = title;
     this.date = date;
+    this.totalEmissions = totalEmissions;
     this.distance = distance;
     this.specificEmissions = specificEmissions;
     this.fuelType = fuelType;
@@ -63,7 +69,8 @@ export class TransportActivity {
     this.totalFuelConsumption = totalFuelConsumption;
     this.calcMode = calcMode;
     this.persons = persons;
-    this.totalEmissions = totalEmissions;
+    this.capacityUtilization = capacityUtilization;
+    this.transportMode = transportMode;
     this.createdBy = createdBy;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt;

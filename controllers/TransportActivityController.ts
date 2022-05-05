@@ -5,6 +5,7 @@ import { JSONValidator } from "../services/JSONValidator";
 import { v4 as generateUUID } from "uuid";
 import { FuelType } from "../enums/FuelType";
 import { CalcMode } from "../enums/CalcMode";
+import { TransportMode } from "../enums/TransportMode";
 
 export class TransportActivityController {
   jsonValidator: JSONValidator;
@@ -71,7 +72,7 @@ export class TransportActivityController {
         });
       }
       const items = transportActivities.map((ta) => {
-        let item: { id: string; title?: string; totalEmissions?: number; date?: Date } = { id: ta.id };
+        let item: ListItem = { id: ta.id };
         if (params.title === "true") {
           item.title = ta.title;
         }
@@ -80,6 +81,9 @@ export class TransportActivityController {
         }
         if (params.date === "true") {
           item.date = ta.date;
+        }
+        if (params.transportMode === "true") {
+          item.transportMode = ta.transportMode;
         }
         return item;
       });
@@ -255,6 +259,7 @@ interface ListParams {
   title?: "true";
   totalEmissions?: "true";
   date?: "true";
+  transportMode?: "true";
   dateAfter?: string;
   sortBy?: "date";
   sortDirection?: "ASC" | "DESC";
@@ -266,6 +271,7 @@ const listParamsSchema: JSONSchemaType<ListParams> = {
     title: { type: "string", nullable: true, enum: ["true"] },
     totalEmissions: { type: "string", nullable: true, enum: ["true"] },
     date: { type: "string", nullable: true, enum: ["true"] },
+    transportMode: { type: "string", nullable: true, enum: ["true"] },
     dateAfter: { type: "string", nullable: true, format: "date-time" },
     sortBy: { type: "string", nullable: true, enum: ["date"] },
     sortDirection: { type: "string", nullable: true, enum: ["ASC", "DESC"] },
@@ -277,6 +283,7 @@ interface ListItem {
   title?: string;
   totalEmissions?: number;
   date?: Date;
+  transportMode?: TransportMode;
 }
 
 interface ListResponseOK {
