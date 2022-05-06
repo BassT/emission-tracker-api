@@ -22,7 +22,6 @@ describe("create", () => {
       specificEmissions: 0,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     };
     const result = await controller.create({ userId, params: body });
     expect(result.status).toBe(201);
@@ -47,7 +46,6 @@ describe("details", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -76,7 +74,6 @@ describe("list", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivity2 = new TransportActivity({
       id: "test-2",
@@ -91,7 +88,6 @@ describe("list", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -125,7 +121,6 @@ describe("update", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalEmissions: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,
@@ -146,7 +141,6 @@ describe("update", () => {
         persons: transportActivity.persons,
         specificFuelConsumption: transportActivity.specificFuelConsumption,
         totalFuelConsumption: transportActivity.totalFuelConsumption,
-        capacityUtilization: transportActivity.capacityUtilization,
       },
     });
     expect(result.status).toBe(200);
@@ -175,7 +169,6 @@ describe("delete", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivity2 = new TransportActivity({
       id: "test-2",
@@ -190,7 +183,6 @@ describe("delete", () => {
       persons: 1,
       specificFuelConsumption: 0,
       totalFuelConsumption: 0,
-      capacityUtilization: 0.5,
     });
     const transportActivityMapper = new InMemoryTransportActivityMapper({
       logger: console,

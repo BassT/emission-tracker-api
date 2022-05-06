@@ -163,7 +163,6 @@ export interface CreateBody {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
-  capacityUtilization?: number;
   totalEmissions: number;
 }
 
@@ -187,7 +186,6 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
       nullable: true,
     },
     persons: { type: "number", nullable: true },
-    capacityUtilization: { type: "number", nullable: true },
     totalEmissions: { type: "number" },
   },
   required: ["title", "date", "totalEmissions"],
@@ -314,7 +312,6 @@ interface UpdateParams {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
-  capacityUtilization?: number;
   totalEmissions: number;
 }
 
@@ -339,7 +336,6 @@ const updateParamsSchema: JSONSchemaType<UpdateParams> = {
       nullable: true,
     },
     persons: { type: "number", nullable: true },
-    capacityUtilization: { type: "number", nullable: true },
     totalEmissions: { type: "number" },
   },
   required: ["id", "title", "date", "totalEmissions"],
@@ -434,7 +430,6 @@ interface ImportParams {
     totalFuelConsumption?: number;
     calcMode?: CalcMode;
     persons?: number;
-    capacityUtilization?: number;
     totalEmissions: number;
     createdBy: string;
     createdAt: {
@@ -499,10 +494,6 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
           },
           persons: {
             type: "integer",
-            nullable: true,
-          },
-          capacityUtilization: {
-            type: "number",
             nullable: true,
           },
           totalEmissions: {

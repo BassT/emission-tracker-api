@@ -331,7 +331,6 @@
           "totalFuelConsumption": { "type": "number" },
           "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
           "persons": { "type": "number" },
-          "capacityUtilization": { "type": "number" },
           "transportMode": { "$ref": "#/components/schemas/transportMode" }
         },
         "required": ["title", "date", "totalEmissions"],

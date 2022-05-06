@@ -14,7 +14,6 @@ export class TransportActivity {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
-  capacityUtilization?: number;
   totalEmissions: number;
   /**
    * ID of user who created this transport activity.
@@ -35,7 +34,6 @@ export class TransportActivity {
     totalFuelConsumption,
     calcMode,
     persons,
-    capacityUtilization,
     transportMode,
     createdBy,
     createdAt,
@@ -52,7 +50,6 @@ export class TransportActivity {
     totalFuelConsumption?: number;
     calcMode?: CalcMode;
     persons?: number;
-    capacityUtilization?: number;
     transportMode?: TransportMode;
     createdBy: string;
     createdAt?: Date;
@@ -69,7 +66,6 @@ export class TransportActivity {
     this.totalFuelConsumption = totalFuelConsumption;
     this.calcMode = calcMode;
     this.persons = persons;
-    this.capacityUtilization = capacityUtilization;
     this.transportMode = transportMode;
     this.createdBy = createdBy;
     this.createdAt = createdAt || new Date();
