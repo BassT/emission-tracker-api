@@ -326,10 +326,11 @@
           "totalEmissions": { "type": "number" },
           "distance": { "type": "number" },
           "specificEmissions": { "type": "number" },
-          "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG"] },
+          "fuelType": { "type": "string", "enum": ["Diesel", "Gasoline", "LPG", "CNG", "Electricity"] },
           "specificFuelConsumption": { "type": "number" },
           "totalFuelConsumption": { "type": "number" },
           "calcMode": { "type": "string", "enum": ["SpecificEmissions", "SpecificFuel", "TotalFuel"] },
+          "trainType": { "type": "string", "enum": ["Local", "Long-Distance"] },
           "persons": { "type": "number" },
           "transportMode": { "$ref": "#/components/schemas/transportMode" }
         },

@@ -1,5 +1,6 @@
 import { CalcMode } from "../enums/CalcMode";
 import { FuelType } from "../enums/FuelType";
+import { TrainType } from "../enums/TrainType";
 import { TransportMode } from "../enums/TransportMode";
 
 export class TransportActivity {
@@ -14,6 +15,7 @@ export class TransportActivity {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
+  trainType?: TrainType;
   totalEmissions: number;
   /**
    * ID of user who created this transport activity.
@@ -35,6 +37,7 @@ export class TransportActivity {
     calcMode,
     persons,
     transportMode,
+    trainType,
     createdBy,
     createdAt,
     updatedAt,
@@ -51,6 +54,7 @@ export class TransportActivity {
     calcMode?: CalcMode;
     persons?: number;
     transportMode?: TransportMode;
+    trainType?: TrainType;
     createdBy: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -67,6 +71,7 @@ export class TransportActivity {
     this.calcMode = calcMode;
     this.persons = persons;
     this.transportMode = transportMode;
+    this.trainType = trainType;
     this.createdBy = createdBy;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt;

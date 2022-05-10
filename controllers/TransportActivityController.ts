@@ -6,6 +6,7 @@ import { v4 as generateUUID } from "uuid";
 import { FuelType } from "../enums/FuelType";
 import { CalcMode } from "../enums/CalcMode";
 import { TransportMode } from "../enums/TransportMode";
+import { TrainType } from "../enums/TrainType";
 
 export class TransportActivityController {
   jsonValidator: JSONValidator;
@@ -104,6 +105,7 @@ export class TransportActivityController {
       transportActivity.distance = params.distance;
       transportActivity.specificEmissions = params.specificEmissions;
       transportActivity.fuelType = params.fuelType;
+      transportActivity.trainType = params.trainType;
       transportActivity.specificFuelConsumption = params.specificFuelConsumption;
       transportActivity.totalFuelConsumption = params.totalFuelConsumption;
       transportActivity.calcMode = params.calcMode;
@@ -156,6 +158,7 @@ export class TransportActivityController {
 export interface CreateBody {
   title: string;
   date: string;
+  transportMode?: TransportMode;
   distance?: number;
   specificEmissions?: number;
   fuelType?: FuelType;
@@ -163,6 +166,7 @@ export interface CreateBody {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
+  trainType?: TrainType;
   totalEmissions: number;
 }
 
@@ -175,7 +179,7 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
     specificEmissions: { type: "number", nullable: true },
     fuelType: {
       type: "string",
-      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG],
+      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG, FuelType.Electricity],
       nullable: true,
     },
     specificFuelConsumption: { type: "number", nullable: true },
@@ -185,7 +189,13 @@ const createBodySchema: JSONSchemaType<CreateBody> = {
       enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel],
       nullable: true,
     },
+    trainType: {
+      type: "string",
+      enum: [TrainType.Local, TrainType.LongDistance],
+      nullable: true,
+    },
     persons: { type: "number", nullable: true },
+    transportMode: { type: "string", nullable: true, enum: [TransportMode.Car, TransportMode.Train] },
     totalEmissions: { type: "number" },
   },
   required: ["title", "date", "totalEmissions"],
@@ -312,6 +322,7 @@ interface UpdateParams {
   totalFuelConsumption?: number;
   calcMode?: CalcMode;
   persons?: number;
+  trainType?: TrainType;
   totalEmissions: number;
 }
 
@@ -325,7 +336,7 @@ const updateParamsSchema: JSONSchemaType<UpdateParams> = {
     specificEmissions: { type: "number", nullable: true },
     fuelType: {
       type: "string",
-      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG],
+      enum: [FuelType.Diesel, FuelType.Gasoline, FuelType.LPG, FuelType.CNG, FuelType.Electricity],
       nullable: true,
     },
     specificFuelConsumption: { type: "number", nullable: true },
@@ -333,6 +344,11 @@ const updateParamsSchema: JSONSchemaType<UpdateParams> = {
     calcMode: {
       type: "string",
       enum: [CalcMode.SpecificEmissions, CalcMode.SpecificFuel, CalcMode.TotalFuel],
+      nullable: true,
+    },
+    trainType: {
+      type: "string",
+      enum: [TrainType.Local, TrainType.LongDistance],
       nullable: true,
     },
     persons: { type: "number", nullable: true },
@@ -429,6 +445,7 @@ interface ImportParams {
     specificFuelConsumption?: number;
     totalFuelConsumption?: number;
     calcMode?: CalcMode;
+    trainType?: TrainType;
     persons?: number;
     totalEmissions: number;
     createdBy: string;
@@ -490,6 +507,11 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
           },
           calcMode: {
             type: "string",
+            nullable: true,
+          },
+          trainType: {
+            type: "string",
+            enum: [TrainType.Local, TrainType.LongDistance],
             nullable: true,
           },
           persons: {

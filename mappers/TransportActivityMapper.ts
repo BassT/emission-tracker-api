@@ -2,6 +2,7 @@ import mongoose, { FilterQuery, model, Schema } from "mongoose";
 import { TransportActivity } from "../entities/TransportActivity";
 import { CalcMode } from "../enums/CalcMode";
 import { FuelType } from "../enums/FuelType";
+import { TrainType } from "../enums/TrainType";
 import { TransportMode } from "../enums/TransportMode";
 import { Logger } from "../services/Logger";
 
@@ -124,6 +125,7 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     calcMode,
     persons,
     transportMode,
+    trainType,
     totalEmissions,
     updatedAt,
   }: {
@@ -141,6 +143,7 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     calcMode?: CalcMode;
     persons?: number;
     transportMode?: TransportMode;
+    trainType?: TrainType;
     totalEmissions: number;
     updatedAt?: Date;
   }) {
@@ -154,6 +157,7 @@ export class CosmosDBTransportActivityMapper implements TransportActivityMapper 
     doc.calcMode = calcMode;
     doc.persons = persons;
     doc.transportMode = transportMode;
+    doc.trainType = trainType;
     doc.totalEmissions = totalEmissions;
     doc.updatedAt = updatedAt;
     return doc;
@@ -174,6 +178,7 @@ const TransportActivityModel = model<TransportActivity>(
     calcMode: String,
     persons: Number,
     transportMode: String,
+    trainType: String,
     totalEmissions: Number,
     createdBy: String,
     createdAt: Date,
