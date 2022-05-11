@@ -434,6 +434,9 @@ type DeleteResponse =
 
 interface ImportParams {
   data: Array<{
+    _id: {
+      $oid: string;
+    };
     id: string;
     title: string;
     date: {
@@ -447,6 +450,7 @@ interface ImportParams {
     calcMode?: CalcMode;
     trainType?: TrainType;
     persons?: number;
+    transportMode?: TransportMode;
     totalEmissions: number;
     createdBy: string;
     createdAt: {
@@ -455,6 +459,7 @@ interface ImportParams {
     updatedAt?: {
       $date: string;
     };
+    __v: number;
   }>;
 }
 
@@ -468,6 +473,16 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
         type: "object",
         required: ["id", "title", "date", "totalEmissions", "createdBy", "createdAt"],
         properties: {
+          _id: {
+            type: "object",
+            required: ["$oid"],
+            properties: {
+              $oid: {
+                type: "string",
+              },
+            },
+            additionalProperties: false,
+          },
           id: {
             type: "string",
           },
@@ -518,6 +533,11 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
             type: "integer",
             nullable: true,
           },
+          transportMode: {
+            type: "string",
+            enum: [TransportMode.Car, TransportMode.Train],
+            nullable: true,
+          },
           totalEmissions: {
             type: "number",
           },
@@ -545,6 +565,7 @@ const importParamsSchema: JSONSchemaType<ImportParams> = {
             additionalProperties: false,
             nullable: true,
           },
+          __v: { type: "number" },
         },
         additionalProperties: false,
       },
