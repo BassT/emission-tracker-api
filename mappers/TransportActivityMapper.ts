@@ -60,22 +60,27 @@ export class InMemoryTransportActivityMapper implements TransportActivityMapper 
   }
 }
 
-export class CosmosDBTransportActivityMapper implements TransportActivityMapper {
-  static instance: CosmosDBTransportActivityMapper;
+export class MongoDBTransportActivityMapper implements TransportActivityMapper {
+  static instance: MongoDBTransportActivityMapper;
 
   static async getInstance() {
+    if (MongoDBTransportActivityMapper.instance) return MongoDBTransportActivityMapper.instance;
+
     if (!process.env.MONGO_URL) {
       throw new Error("Missing environment variable MONGO_URL");
     }
     if (!process.env.DB_NAME) {
       throw new Error("Missing environment variable DB_NAME");
     }
-    await mongoose.connect(process.env.MONGO_URL, { dbName: process.env.DB_NAME });
-    console.log(CosmosDBTransportActivityMapper.name, "Connected");
-    if (!CosmosDBTransportActivityMapper.instance) {
-      CosmosDBTransportActivityMapper.instance = new CosmosDBTransportActivityMapper();
+    try {
+      await mongoose.connect(process.env.MONGO_URL, { dbName: process.env.DB_NAME });
+      console.log(MongoDBTransportActivityMapper.name, "Connected");
+      MongoDBTransportActivityMapper.instance = new MongoDBTransportActivityMapper();
+      return MongoDBTransportActivityMapper.instance;
+    } catch (error) {
+      console.error("Failed to connect to MongoDB", error, JSON.stringify({ error }));
+      throw error;
     }
-    return CosmosDBTransportActivityMapper.instance;
   }
 
   private constructor() {}

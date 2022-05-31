@@ -5,12 +5,12 @@ import passport from "passport";
 import { BearerStrategy as AzureADBearerStrategy } from "passport-azure-ad";
 import swaggerUi from "swagger-ui-express";
 import { TransportActivityController } from "./controllers/TransportActivityController";
-import { CosmosDBTransportActivityMapper } from "./mappers/TransportActivityMapper";
+import { MongoDBTransportActivityMapper } from "./mappers/TransportActivityMapper";
 import swaggerDoc from "./openapi.json";
 import { JSONValidator } from "./services/JSONValidator";
 
 async function main() {
-  const transportActivityMapper = await CosmosDBTransportActivityMapper.getInstance();
+  const transportActivityMapper = await MongoDBTransportActivityMapper.getInstance();
   const jsonValidator = new JSONValidator();
   const transportActivityController = new TransportActivityController({
     jsonValidator,
