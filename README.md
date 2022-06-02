@@ -1,3 +1,5 @@
+**Notes on archiving**: I'm currently not convinced anymore that (personal) carbon accounting is a very effective solution to addresse climate change. Carbon accounting is very hard to get right and even harder to build a great user experience for it.
+
 The repository of the emission tracker API. Built with [Node.js](https://github.com/nodejs), [MongoDB](https://github.com/mongodb), [Express](https://github.com/expressjs) and common libraries of the Express ecosystem.
 
 # Getting started
