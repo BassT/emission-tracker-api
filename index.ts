@@ -1,4 +1,5 @@
 import "dotenv/config";
+import arg from "arg";
 import express from "express";
 import morgan from "morgan";
 import passport from "passport";
@@ -8,6 +9,10 @@ import { TransportActivityController } from "./controllers/TransportActivityCont
 import { MongoDBTransportActivityMapper } from "./mappers/TransportActivityMapper";
 import swaggerDoc from "./openapi.json";
 import { JSONValidator } from "./services/JSONValidator";
+
+const args = arg({
+  "--unsafe-naive-auth": Boolean,
+});
 
 async function main() {
   const transportActivityMapper = await MongoDBTransportActivityMapper.getInstance();
@@ -22,35 +27,60 @@ async function main() {
 
   app.use(express.json());
   app.use(morgan("dev"));
-  app.use(passport.initialize());
 
-  passport.use(
-    new AzureADBearerStrategy(
-      {
-        clientID: "4e265e07-7236-4497-8f6d-313c53607b3b",
-        identityMetadata: `https://emissiontracker.b2clogin.com/emissiontracker.onmicrosoft.com/B2C_1_emission-tracker-app/v2.0/.well-known/openid-configuration`,
-        audience: "4e265e07-7236-4497-8f6d-313c53607b3b",
-        issuer: "https://emissiontracker.b2clogin.com/e8ad1712-1cdf-4ef0-aa12-6fdf1519db81/v2.0/",
-        policyName: "B2C_1_emission-tracker-app",
-        isB2C: true,
-        // Access token is valid, if any of the following scopes is present in token
-        scope: ["user"],
-        validateIssuer: true,
-        loggingLevel: "error",
-      },
-      (token, done) => {
-        const user = { id: token.oid };
-        done(null, user, token);
+  // Authentication
+  if (args["--unsafe-naive-auth"]) {
+    app.use("/api*", (req, res, next) => {
+      if (req.headers["x-naive-auth"]) {
+        if (typeof req.headers["x-naive-auth"] === "string") {
+          req.user = { id: req.headers["x-naive-auth"] };
+          return next();
+        }
       }
-    )
-  );
+      res.status(401).send("Unauthorized");
+    });
+    console.log("Using authentication: naive (UNSAFE!)");
+  } else {
+    if (!process.env.AZURE_AD_CLIENT_ID) {
+      throw new Error("Missing environment variable: AZURE_AD_CLIENT_ID");
+    }
+    if (!process.env.AZURE_AD_IDENTITY_METADATA) {
+      throw new Error("Missing environment variable: AZURE_AD_IDENTITY_METADATA");
+    }
+    if (!process.env.AZURE_AD_AUDIENCE) {
+      throw new Error("Missing environment variable: AZURE_AD_AUDIENCE");
+    }
+    if (!process.env.AZURE_AD_ISSUER) {
+      throw new Error("Missing environment variable: AZURE_AD_ISSUER");
+    }
+    if (!process.env.AZURE_AD_POLICY_NAME) {
+      throw new Error("Missing environment variable: AZURE_AD_POLICY_NAME");
+    }
 
-  // enable CORS (for testing only - remove in production/deployment)
-  // app.use((_req, res, next) => {
-  //   res.header("Access-Control-Allow-Origin", "*");
-  //   res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
-  //   next();
-  // });
+    app.use(passport.initialize());
+    passport.use(
+      new AzureADBearerStrategy(
+        {
+          clientID: process.env.AZURE_AD_CLIENT_ID,
+          identityMetadata: process.env.AZURE_AD_IDENTITY_METADATA,
+          audience: process.env.AZURE_AD_AUDIENCE,
+          issuer: process.env.AZURE_AD_ISSUER,
+          policyName: process.env.AZURE_AD_POLICY_NAME,
+          isB2C: true,
+          // Access token is valid, if any of the following scopes is present in token
+          scope: ["user"],
+          validateIssuer: true,
+          loggingLevel: "error",
+        },
+        (token, done) => {
+          const user = { id: token.oid };
+          done(null, user, token);
+        }
+      )
+    );
+    app.use("/api*", passport.authenticate("oauth-bearer", { session: false }));
+    console.log("Using authentication: Azure AD");
+  }
 
   app.get("/", (req, res) => {
     const { name = "World" } = req.query;
@@ -59,7 +89,7 @@ async function main() {
 
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-  app.post("/api/transport-activity", passport.authenticate("oauth-bearer", { session: false }), async (req, res) => {
+  app.post("/api/transport-activity", async (req, res) => {
     const result = await transportActivityController.create({
       userId: req.user?.id,
       params: req.body,
@@ -77,7 +107,7 @@ async function main() {
     }
   });
 
-  app.get("/api/transport-activity", passport.authenticate("oauth-bearer", { session: false }), async (req, res) => {
+  app.get("/api/transport-activity", async (req, res) => {
     const result = await transportActivityController.list({
       userId: req.user?.id,
       params: { ...req.params, ...req.query },
@@ -94,98 +124,82 @@ async function main() {
     }
   });
 
-  app.get(
-    "/api/transport-activity/:id",
-    passport.authenticate("oauth-bearer", { session: false }),
-    async (req, res) => {
-      const result = await transportActivityController.details({
-        userId: req.user?.id,
-        params: req.params,
-      });
-      switch (result.status) {
-        case 200:
-          return res.status(200).json(result.transportActivity);
-        case 400:
-          return res.status(400).json({ errors: result.errors });
-        case 401:
-          return res.status(401).json({ error: result.error });
-        case 403:
-          return res.status(403).json({ error: result.error });
-        case 404:
-          return res.status(404).json({ error: result.error });
-        default:
-          return res.status(500).send();
-      }
+  app.get("/api/transport-activity/:id", async (req, res) => {
+    const result = await transportActivityController.details({
+      userId: req.user?.id,
+      params: req.params,
+    });
+    switch (result.status) {
+      case 200:
+        return res.status(200).json(result.transportActivity);
+      case 400:
+        return res.status(400).json({ errors: result.errors });
+      case 401:
+        return res.status(401).json({ error: result.error });
+      case 403:
+        return res.status(403).json({ error: result.error });
+      case 404:
+        return res.status(404).json({ error: result.error });
+      default:
+        return res.status(500).send();
     }
-  );
+  });
 
-  app.put(
-    "/api/transport-activity/:id",
-    passport.authenticate("oauth-bearer", { session: false }),
-    async (req, res) => {
-      const result = await transportActivityController.update({
-        userId: req.user?.id,
-        params: { ...req.params, ...req.body },
-      });
-      switch (result.status) {
-        case 200:
-          return res.status(200).json(result.transportActivity);
-        case 400:
-          return res.status(400).json({ errors: result.errors });
-        case 401:
-          return res.status(401).json({ error: result.error });
-        case 403:
-          return res.status(403).json({ error: result.error });
-        case 404:
-          return res.status(404).json({ error: result.error });
-        default:
-          return res.status(500).send();
-      }
+  app.put("/api/transport-activity/:id", async (req, res) => {
+    const result = await transportActivityController.update({
+      userId: req.user?.id,
+      params: { ...req.params, ...req.body },
+    });
+    switch (result.status) {
+      case 200:
+        return res.status(200).json(result.transportActivity);
+      case 400:
+        return res.status(400).json({ errors: result.errors });
+      case 401:
+        return res.status(401).json({ error: result.error });
+      case 403:
+        return res.status(403).json({ error: result.error });
+      case 404:
+        return res.status(404).json({ error: result.error });
+      default:
+        return res.status(500).send();
     }
-  );
+  });
 
-  app.delete(
-    "/api/transport-activity/:id",
-    passport.authenticate("oauth-bearer", { session: false }),
-    async (req, res) => {
-      const result = await transportActivityController.delete({
-        userId: req.user?.id,
-        params: req.params,
-      });
-      switch (result.status) {
-        case 204:
-          return res.status(204).send();
-        case 400:
-          return res.status(400).json({ errors: result.errors });
-        case 401:
-          return res.status(401).json({ error: result.error });
-        case 403:
-          return res.status(403).json({ error: result.error });
-        case 404:
-          return res.status(404).json({ error: result.error });
-        default:
-          return res.status(500).send();
-      }
+  app.delete("/api/transport-activity/:id", async (req, res) => {
+    const result = await transportActivityController.delete({
+      userId: req.user?.id,
+      params: req.params,
+    });
+    switch (result.status) {
+      case 204:
+        return res.status(204).send();
+      case 400:
+        return res.status(400).json({ errors: result.errors });
+      case 401:
+        return res.status(401).json({ error: result.error });
+      case 403:
+        return res.status(403).json({ error: result.error });
+      case 404:
+        return res.status(404).json({ error: result.error });
+      default:
+        return res.status(500).send();
     }
-  );
+  });
 
-  app.post(
-    "/api/transport-activity/import",
-    passport.authenticate("oauth-bearer", { session: false }),
-    async (req, res) => {
-      const result = await transportActivityController.import({ userId: req.user?.id, params: { ...req.body } });
-      switch (result.status) {
-        case 200:
-          return res.status(200).send(result.message);
-        case 400:
-          return res.status(400).json({ errors: result.errors });
-        case 401:
-          return res.status(401).send();
-        default:
-          return res.status(500).send();
-      }
+  app.post("/api/transport-activity/import", async (req, res) => {
+    const result = await transportActivityController.import({ userId: req.user?.id, params: { ...req.body } });
+    switch (result.status) {
+      case 200:
+        return res.status(200).send(result.message);
+      case 400:
+        return res.status(400).json({ errors: result.errors });
+      case 401:
+        return res.status(401).send();
+      default:
+        return res.status(500).send();
     }
-  );
+  });
 
   app.listen(port, () => {
     console.log(`App listening at port ${port}`);
